@@ -13,6 +13,19 @@ async def scrape():
         print("Loading YC companies page...")
         await page.goto(START_URL, wait_until="networkidle")
 
+        # --- Select sorting: Launch Date ---
+        # The page has a select with an option value 'YCCompany_By_Launch_Date_production'.
+        # Try to set that option so companies are listed by launch date before extracting.
+        try:
+            await page.wait_for_selector('select', timeout=5000)
+            await page.select_option('select', value='YCCompany_By_Launch_Date_production')
+            # Wait for network activity and a short delay for DOM to update
+            await page.wait_for_load_state('networkidle')
+            await page.wait_for_timeout(800)
+            print("Selected 'Launch Date' sorting.")
+        except Exception as e:
+            print("Could not set Launch Date sorting:", e)
+
         # Scroll para cargar más empresas
         last_height = 0
         while True:
