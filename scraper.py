@@ -1,6 +1,8 @@
 import asyncio
 from playwright.async_api import async_playwright
 import pandas as pd
+import json
+import html
 
 START_URL = "https://www.ycombinator.com/companies"
 
@@ -74,40 +76,67 @@ async def scrape():
             try:
                 cp = await browser.new_page()
                 await cp.goto(full_url, wait_until="networkidle")
-                # company LinkedIn (company profile URL)
+                # Try to extract structured data embedded in the page (YC uses a data-page JSON)
                 try:
-                    c_link_el = await cp.query_selector('a[href*="linkedin.com/company"]')
-                    company_linkedin = await c_link_el.get_attribute('href') if c_link_el else ""
-                except:
-                    company_linkedin = ""
+                    state_el = await cp.query_selector('div[id^="ycdc_new/pages/Companies/ShowPage-react-component-"]')
+                    if state_el:
+                        raw = await state_el.get_attribute('data-page')
+                        if raw:
+                            try:
+                                parsed = json.loads(html.unescape(raw))
+                                # company-level links
+                                company_obj = parsed.get('props', {}).get('company', {})
+                                company_linkedin = company_obj.get('linkedin_url', '') or company_linkedin
+                                # website sometimes in the top-level company.url or website
+                                company_website = company_obj.get('website', '') or company_obj.get('url', '') or company_website
+                                # founders
+                                f_list = parsed.get('props', {}).get('founders', [])
+                                if f_list:
+                                    for f in f_list:
+                                        lk = f.get('linkedin_url')
+                                        if lk:
+                                            founders_linkedin.append(lk)
+                            except Exception:
+                                # fall through to anchor scraping
+                                pass
 
-                # company website (aria-label present on YC company pages)
-                try:
-                    web_el = await cp.query_selector('a[aria-label="Company website"]')
-                    if web_el:
-                        company_website = await web_el.get_attribute('href') or ""
-                    else:
-                        # fallback: find first external link that is not linkedin
-                        anchors = await cp.query_selector_all('a[href^="http"]')
-                        for a in anchors:
-                            href = await a.get_attribute('href')
-                            if href and 'linkedin.com' not in href:
-                                company_website = href
-                                break
-                except:
-                    company_website = ""
+                except Exception:
+                    pass
 
-                # founder(s) linkedin: look for profile links (linkedin.com/in)
-                try:
-                    founder_els = await cp.query_selector_all('a[href*="linkedin.com/in"]')
-                    seen = set()
-                    for f in founder_els:
-                        href = await f.get_attribute('href')
-                        if href and href not in seen:
-                            seen.add(href)
-                            founders_linkedin.append(href)
-                except:
-                    founders_linkedin = []
+                # Fallback: DOM anchors if structured data didn't yield results
+                if not company_linkedin:
+                    try:
+                        c_link_el = await cp.query_selector('a[href*="linkedin.com/company"]')
+                        company_linkedin = await c_link_el.get_attribute('href') if c_link_el else ""
+                    except:
+                        company_linkedin = ""
+
+                if not company_website:
+                    try:
+                        web_el = await cp.query_selector('a[aria-label="Company website"]')
+                        if web_el:
+                            company_website = await web_el.get_attribute('href') or ""
+                        else:
+                            anchors = await cp.query_selector_all('a[href^="http"]')
+                            for a in anchors:
+                                href = await a.get_attribute('href')
+                                if href and 'linkedin.com' not in href:
+                                    company_website = href
+                                    break
+                    except:
+                        company_website = ""
+
+                if not founders_linkedin:
+                    try:
+                        founder_els = await cp.query_selector_all('a[href*="linkedin.com/in"]')
+                        seen = set()
+                        for f in founder_els:
+                            href = await f.get_attribute('href')
+                            if href and href not in seen:
+                                seen.add(href)
+                                founders_linkedin.append(href)
+                    except:
+                        founders_linkedin = []
 
                 await cp.close()
             except Exception as e:
