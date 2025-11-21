@@ -66,11 +66,61 @@ async def scrape():
             url = await card.get_attribute("href")
             full_url = f"https://www.ycombinator.com{url}"
 
+            # --- Open company page to extract website and LinkedIn links ---
+            company_linkedin = ""
+            company_website = ""
+            founders_linkedin = []
+
+            try:
+                cp = await browser.new_page()
+                await cp.goto(full_url, wait_until="networkidle")
+                # company LinkedIn (company profile URL)
+                try:
+                    c_link_el = await cp.query_selector('a[href*="linkedin.com/company"]')
+                    company_linkedin = await c_link_el.get_attribute('href') if c_link_el else ""
+                except:
+                    company_linkedin = ""
+
+                # company website (aria-label present on YC company pages)
+                try:
+                    web_el = await cp.query_selector('a[aria-label="Company website"]')
+                    if web_el:
+                        company_website = await web_el.get_attribute('href') or ""
+                    else:
+                        # fallback: find first external link that is not linkedin
+                        anchors = await cp.query_selector_all('a[href^="http"]')
+                        for a in anchors:
+                            href = await a.get_attribute('href')
+                            if href and 'linkedin.com' not in href:
+                                company_website = href
+                                break
+                except:
+                    company_website = ""
+
+                # founder(s) linkedin: look for profile links (linkedin.com/in)
+                try:
+                    founder_els = await cp.query_selector_all('a[href*="linkedin.com/in"]')
+                    seen = set()
+                    for f in founder_els:
+                        href = await f.get_attribute('href')
+                        if href and href not in seen:
+                            seen.add(href)
+                            founders_linkedin.append(href)
+                except:
+                    founders_linkedin = []
+
+                await cp.close()
+            except Exception as e:
+                print(f"Error opening company page {full_url}:", e)
+
             results.append({
                 "name": name.strip(),
                 "location": location.strip(),
                 "description": description.strip(),
-                "url": full_url
+                "url": full_url,
+                "company_linkedin": company_linkedin,
+                "company_website": company_website,
+                "founder_linkedin": ";".join(founders_linkedin)
             })
 
         await browser.close()

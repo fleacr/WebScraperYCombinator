@@ -1,41 +1,41 @@
-name,location,description,url
-Hlabs,"Austin, TX, USA",Developer friendly robotics,https://www.ycombinator.com/companies/hlabs
-Goldbridge,,Ramp for Real Estate,https://www.ycombinator.com/companies/goldbridge
-Sarah AI,"San Francisco, CA, USA",AI Agents for CPG ops,https://www.ycombinator.com/companies/sarah-ai
-Null Labs,"San Francisco, CA, USA",frontier spatial intelligence lab focused on defense autonomy,https://www.ycombinator.com/companies/null-labs
-Tensr,"San Francisco, CA, USA",Fully autonomous robotic factories,https://www.ycombinator.com/companies/tensr
-AtlasGrid,"Mountain View, CA, USA",Visual Analytics & Growth Insights for Mobile Apps,https://www.ycombinator.com/companies/atlasgrid
-Mayflower,"San Francisco, CA, USA",AI plug-in that automates HR immigration screening and compliance,https://www.ycombinator.com/companies/mayflower
-Velum Labs,"San Francisco, CA, USA",Firewall that controls access to information across AI and humans,https://www.ycombinator.com/companies/velum-labs
-LogosGuard,"San Francisco, CA, USA",The risk management software for enterprises adopting AI,https://www.ycombinator.com/companies/logosguard
-F2,"New York, NY, USA",The AI platform for private markets investors,https://www.ycombinator.com/companies/f2
-Scoop,"San Francisco, CA, USA","AI agents that speed up drug trials, starting with IND filings",https://www.ycombinator.com/companies/scoop
-Exonic,"San Francisco, CA, USA",Crowdsourcing drug discovery.,https://www.ycombinator.com/companies/exonic
-Forge Robotics,"San Francisco, CA, USA",A robotics intelligence layer for metal fabrication,https://www.ycombinator.com/companies/forge-robotics
-JSX Tool,,AI-First In-Browser IDE for React Development,https://www.ycombinator.com/companies/jsx-tool
-Zephyr Fusion,"San Diego, CA, USA",Powering tomorrow's industrial revolution in space,https://www.ycombinator.com/companies/zephyr-fusion
-Captain,"San Francisco, CA, USA",The Reliable Alternative to RAG,https://www.ycombinator.com/companies/captain
-Thesis,"San Francisco, CA, USA",The scientific discovery engine.,https://www.ycombinator.com/companies/thesis
-Iris,"San Francisco, CA, USA","All your calendars and inboxes, powered by an intelligent assistant.",https://www.ycombinator.com/companies/iriscal
-Castari,"San Francisco, CA, USA",Vercel for AI Agents – Deploy sandboxed agents with MCP tools & skills,https://www.ycombinator.com/companies/castari
-Zarna,"San Francisco, CA, USA",AI Private Equity Associates,https://www.ycombinator.com/companies/zarna
-Nessie,"San Francisco, CA, USA",Perplexity for your mind,https://www.ycombinator.com/companies/nessie
-Amera,"San Francisco, CA, USA",Automating claims processing workflows for health insurance payers.,https://www.ycombinator.com/companies/amera
-DiligenceSquared Inc.,"San Francisco, CA, USA",AI-powered market due diligence for investment decisions,https://www.ycombinator.com/companies/diligencesquared-inc
-Jarmin,"San Francisco, CA, USA",24/7 Machine Learning Engineer employees,https://www.ycombinator.com/companies/jarmin
-Sanctum,"San Francisco, CA, USA",Ship features to simulated users before real ones,https://www.ycombinator.com/companies/sanctum
-HireGlide,"San Francisco, CA, USA",AI screening and matching for hiring teams,https://www.ycombinator.com/companies/hireglide
-Agentic Fabriq,"Sunnyvale, CA, USA",Okta for Agents.,https://www.ycombinator.com/companies/agentic-fabriq
-Saffron Health,"San Francisco, CA, USA",AI-powered care coordination for primary care,https://www.ycombinator.com/companies/saffron-health
-Efference,"San Francisco, CA, USA",We build the eyes and visual cortex for robots.,https://www.ycombinator.com/companies/efference
-Inspector,"San Francisco, CA, USA",AI-enabled IDE for front-end development,https://www.ycombinator.com/companies/inspector
-Digipals,"San Francisco, CA, USA",Building the Future of Social in the Age of AI,https://www.ycombinator.com/companies/digipals
-item,"San Francisco, CA, USA",The AI-Native CRM that works for you,https://www.ycombinator.com/companies/item
-Scott AI,"New York, NY, USA",Agentic Workspace for Software Spec Design,https://www.ycombinator.com/companies/scott-ai
-Sava,"San Francisco, CA, USA",The Agentic Trust Company,https://www.ycombinator.com/companies/savahq
-Sylvian,"San Francisco, CA, USA",Data for LLMs through Competition,https://www.ycombinator.com/companies/sylvian
-Lakonia,"San Francisco, CA, USA",Delivering AI-powered situational awareness in tactical environments.,https://www.ycombinator.com/companies/lakonia
-Lunavo,"San Francisco, CA, USA",Lunavo is the AI assistant for carriers.,https://www.ycombinator.com/companies/lunavo
-Brickwise,,AI property manager for landlords and estate agents,https://www.ycombinator.com/companies/brickwise
-Tornyol,,We build micro-drones that kill mosquitoes.,https://www.ycombinator.com/companies/tornyol
-Anto Biosciences,"San Francisco, CA, USA",A multimodal foundation model for microbial communities.,https://www.ycombinator.com/companies/anto-biosciences
+name,location,description,url,company_linkedin,company_website,founder_linkedin
+Valgo,"San Mateo, CA, USA",Algorithmic safety validation tools for autonomy.,https://www.ycombinator.com/companies/valgo,https://www.linkedin.com/company/valgorithmic/,https://valgo.dev,https://www.linkedin.com/in/robert-j-moss;https://www.linkedin.com/in/smkatz/
+Hlabs,"Austin, TX, USA",Developer friendly robotics,https://www.ycombinator.com/companies/hlabs,,https://www.hlaboratories.com,https://www.linkedin.com/in/paul-hetherington/
+Goldbridge,,Ramp for Real Estate,https://www.ycombinator.com/companies/goldbridge,,https://,https://linkedin.com/in/gregrami;https://linkedin.com/in/alvinsalehi;https://www.linkedin.com/in/alvinsalehi/;https://www.linkedin.com/in/gregrami/
+Sarah AI,"San Francisco, CA, USA",AI Agents for CPG ops,https://www.ycombinator.com/companies/sarah-ai,,https://hellosarah.ai/,https://www.linkedin.com/in/dirkbreeuwer/;https://www.linkedin.com/in/cwnkong/
+Null Labs,"San Francisco, CA, USA",frontier spatial intelligence lab focused on defense autonomy,https://www.ycombinator.com/companies/null-labs,https://www.linkedin.com/company/n0lab,https://n0labs.com,https://www.linkedin.com/in/krisluo;https://www.linkedin.com/in/niel-ok/
+Tensr,"San Francisco, CA, USA",Fully autonomous robotic factories,https://www.ycombinator.com/companies/tensr,,,
+AtlasGrid,"Mountain View, CA, USA",Visual Analytics & Growth Insights for Mobile Apps,https://www.ycombinator.com/companies/atlasgrid,https://www.linkedin.com/company/atlasgrid-ai,https://atlasgrid.ai,https://www.linkedin.com/in/aaghababyan/;https://www.linkedin.com/in/olegkostour/;https://www.linkedin.com/in/antonkrutiansky
+Mayflower,"San Francisco, CA, USA",AI plug-in that automates HR immigration screening and compliance,https://www.ycombinator.com/companies/mayflower,,https://mayflowervisa.com,https://www.linkedin.com/in/naren-chittem-aaa43826b/;https://linkedin.com/in/aryanguls
+Velum Labs,"San Francisco, CA, USA",Firewall that controls access to information across AI and humans,https://www.ycombinator.com/companies/velum-labs,https://www.linkedin.com/company/velum-labs-ai,https://www.velum-labs.com/,https://www.linkedin.com/in/benjamzc/;https://www.linkedin.com/in/000alen/
+LogosGuard,"San Francisco, CA, USA",The risk management software for enterprises adopting AI,https://www.ycombinator.com/companies/logosguard,https://www.linkedin.com/company/logosguard/,https://logosguard.com/,https://linkedin.com/in/abel-john-85a7551b6;https://www.linkedin.com/in/sukrut-oak/
+F2,"New York, NY, USA",The AI platform for private markets investors,https://www.ycombinator.com/companies/f2,https://www.linkedin.com/company/ftwo,http://f2.ai,https://www.linkedin.com/in/don-muir
+Scoop,"San Francisco, CA, USA","AI agents that speed up drug trials, starting with IND filings",https://www.ycombinator.com/companies/scoop,https://www.linkedin.com/company/scoopcpg/,https://scooplabs.ai,https://linkedin.com/in/vpark;https://www.linkedin.com/in/soonjae/
+Exonic,"San Francisco, CA, USA",Crowdsourcing drug discovery.,https://www.ycombinator.com/companies/exonic,https://www.linkedin.com/company/exonicbio/,https://exonic.ai,https://www.linkedin.com/in/benjamin-brimacombe/;https://www.linkedin.com/in/mikhail-kulak/
+Forge Robotics,"San Francisco, CA, USA",A robotics intelligence layer for metal fabrication,https://www.ycombinator.com/companies/forge-robotics,https://www.linkedin.com/company/forge-robotics,https://forge-robotics.com,https://www.linkedin.com/in/eoincobbe;https://www.linkedin.com/in/robert-cormican-a4405990/;https://www.linkedin.com/in/robert-cormican-a4405990
+JSX Tool,,AI-First In-Browser IDE for React Development,https://www.ycombinator.com/companies/jsx-tool,,,
+Zephyr Fusion,"San Diego, CA, USA",Powering tomorrow's industrial revolution in space,https://www.ycombinator.com/companies/zephyr-fusion,,https://www.zephyrfusion.com,https://www.linkedin.com/in/galen-burke-78923317/;https://www.linkedin.com/in/edward-hinson-078b15143/
+Captain,"San Francisco, CA, USA",The Reliable Alternative to RAG,https://www.ycombinator.com/companies/captain,https://www.linkedin.com/company/runcaptain/,https://runcaptain.com,https://www.linkedin.com/in/edgarbabajanyan;https://www.linkedin.com/in/lewispolansky/
+Thesis,"San Francisco, CA, USA",The scientific discovery engine.,https://www.ycombinator.com/companies/thesis,https://www.linkedin.com/company/thesis-labs-ai,https://thesislabs.ai,https://www.linkedin.com/in/luigicharles;https://www.linkedin.com/in/sergio-charles-5a8052134/;https://www.linkedin.com/in/gil-kornberg-25a130116/
+Iris,"San Francisco, CA, USA","All your calendars and inboxes, powered by an intelligent assistant.",https://www.ycombinator.com/companies/iriscal,https://www.linkedin.com/company/irisyc25,https://textiris.com/,https://www.linkedin.com/in/sidlad/;https://www.linkedin.com/in/samika-sanghvi
+Castari,"San Francisco, CA, USA",Vercel for AI Agents – Deploy sandboxed agents with MCP tools & skills,https://www.ycombinator.com/companies/castari,,,
+Zarna,"San Francisco, CA, USA",AI Private Equity Associates,https://www.ycombinator.com/companies/zarna,https://www.linkedin.com/company/zarna/?viewAsMember=true,https://www.zarnaai.com/,https://www.linkedin.com/in/vivan-agrawal;https://www.linkedin.com/in/rishabh-dhariwal/;https://www.linkedin.com/in/rishij7/;https://www.linkedin.com/in/rakeshvmehta/
+Nessie,"San Francisco, CA, USA",Perplexity for your mind,https://www.ycombinator.com/companies/nessie,,,
+Amera,"San Francisco, CA, USA",Automating claims processing workflows for health insurance payers.,https://www.ycombinator.com/companies/amera,,,
+DiligenceSquared Inc.,"San Francisco, CA, USA",AI-powered market due diligence for investment decisions,https://www.ycombinator.com/companies/diligencesquared-inc,https://www.linkedin.com/company/diligencesquared,https://diligencesquared.com/,https://www.linkedin.com/in/frederik-kofoed-hansen/;https://www.linkedin.com/in/søren-biltoft-knudsen-58010932/;https://www.linkedin.com/in/harshil-rastogi-3a754b65/
+Jarmin,"San Francisco, CA, USA",24/7 Machine Learning Engineer employees,https://www.ycombinator.com/companies/jarmin,https://www.linkedin.com/company/jarmin-ai,https://jarmin.ai/,https://linkedin.com/in/chalmersbrown;https://www.linkedin.com/in/shirsenduhalder/;https://www.linkedin.com/in/zackleman/
+Sanctum,"San Francisco, CA, USA",Ship features to simulated users before real ones,https://www.ycombinator.com/companies/sanctum,,,
+HireGlide,"San Francisco, CA, USA",AI screening and matching for hiring teams,https://www.ycombinator.com/companies/hireglide,https://www.linkedin.com/company/hireglide,https://www.hireglide.ai/,https://www.linkedin.com/in/theokitsberg/;https://www.linkedin.com/in/axel-la-pira-80380a2a2/
+Agentic Fabriq,"Sunnyvale, CA, USA",Okta for Agents.,https://www.ycombinator.com/companies/agentic-fabriq,https://www.linkedin.com/company/agentic-fabriq/,https://www.agenticfabriq.com,https://www.linkedin.com/in/matthew-xu-b32a36271;https://www.linkedin.com/in/paulina-xu-5bba0821b?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app;https://www.linkedin.com/in/paulina-xu-5bba0821b/;https://www.linkedin.com/in/matthew-xu-b32a36271/
+Saffron Health,"San Francisco, CA, USA",AI-powered care coordination for primary care,https://www.ycombinator.com/companies/saffron-health,,,
+Efference,"San Francisco, CA, USA",We build the eyes and visual cortex for robots.,https://www.ycombinator.com/companies/efference,,https://efference.ai,https://www.linkedin.com/in/gianluca-bencomo-326469133
+Inspector,"San Francisco, CA, USA",AI-enabled IDE for front-end development,https://www.ycombinator.com/companies/inspector,,,
+Digipals,"San Francisco, CA, USA",Building the future of Social in the age of AI,https://www.ycombinator.com/companies/digipals,https://www.linkedin.com/company/digipals-app,https://www.digipals.app/,https://www.linkedin.com/in/justatree/;https://www.linkedin.com/in/peggy-wang-ai/
+item,"San Francisco, CA, USA",The AI-Native CRM that works for you,https://www.ycombinator.com/companies/item,,,
+Scott AI,"New York, NY, USA",Agentic Workspace for Software Spec Design,https://www.ycombinator.com/companies/scott-ai,https://www.linkedin.com/company/scott-ai,https://tryscott.ai,https://www.linkedin.com/in/davidemaulick/;https://www.linkedin.com/in/devin-cintron;https://www.linkedin.com/in/devin-cintron/
+Sava,"San Francisco, CA, USA",The Agentic Trust Company,https://www.ycombinator.com/companies/savahq,https://www.linkedin.com/company/savahq/,https://www.savahq.com,https://www.linkedin.com/in/nimit/;https://www.linkedin.com/in/rushabh-sadiwala/
+Sylvian,"San Francisco, CA, USA",Data for LLMs through Competition,https://www.ycombinator.com/companies/sylvian,https://www.linkedin.com/company/sylvian,https://sylvian.ai,https://www.linkedin.com/in/william-s-huang/;https://www.linkedin.com/in/niallkehoe;https://linkedin.com/in/william-s-huang;https://www.linkedin.com/in/niallkehoe/
+Lakonia,"San Francisco, CA, USA",Delivering AI-powered situational awareness in tactical environments.,https://www.ycombinator.com/companies/lakonia,,,
+Lunavo,"San Francisco, CA, USA",Lunavo is the AI assistant for carriers.,https://www.ycombinator.com/companies/lunavo,https://www.linkedin.com/company/lunavo-ai,https://lunavo.ai,https://www.linkedin.com/in/heun;https://www.linkedin.com/in/felix-loesch
+Brickwise,,AI property manager for landlords and estate agents,https://www.ycombinator.com/companies/brickwise,https://www.linkedin.com/company/brickwiseai,https://www.brickwiseai.com,https://linkedin.com/in/jeilani;https://www.linkedin.com/in/eliaskassell/;https://www.linkedin.com/in/jeilani;https://www.linkedin.com/in/eliaskassell/?miniProfileUrn=urn%3Ali%3Afs_miniProfile%3AACoAABeEg0EB4O6J8hjKE8dqLAnLjFXI3sosGQs
+Tornyol,,We build micro-drones that kill mosquitoes.,https://www.ycombinator.com/companies/tornyol,,,
