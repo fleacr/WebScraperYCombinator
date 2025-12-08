@@ -1,0 +1,44 @@
+name: Weekly Scrape
+
+on:
+  schedule:
+    # Every Monday at 07:00 AM GMT-6 -> 13:00 UTC
+    - cron: '0 13 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          else
+            python -m pip install playwright pandas
+          fi
+
+      - name: Install Playwright browsers
+        run: python -m playwright install --with-deps
+
+      - name: Run scraper
+        env:
+          # Run headless in CI and limit companies to 20 by default
+          HEADLESS: '1'
+          MAX_COMPANIES: '20'
+        run: python scraper.py
+
+      - name: Upload CSV artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yc_companies
+          path: yc_companies*.csv

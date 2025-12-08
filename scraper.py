@@ -71,9 +71,9 @@ async def scrape():
         # Limit: only collect the most recent N companies to reduce workload
         # Read from environment if provided (useful for CI). Default to 20.
         try:
-            MAX_COMPANIES = int(os.getenv('MAX_COMPANIES', '20'))
+            MAX_COMPANIES = int(os.getenv('MAX_COMPANIES', '4'))
         except Exception:
-            MAX_COMPANIES = 20
+            MAX_COMPANIES = 4
         # Keep the first MAX_COMPANIES entries from the listing (adjust if you prefer last N)
         cards = cards[:MAX_COMPANIES]
         print(f"Limiting to {len(cards)} companies (max {MAX_COMPANIES}).")
