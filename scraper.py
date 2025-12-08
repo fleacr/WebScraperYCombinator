@@ -3,6 +3,7 @@ from playwright.async_api import async_playwright
 import pandas as pd
 import json
 import html
+import os
 import re
 from datetime import datetime
 
@@ -58,7 +59,11 @@ async def scrape():
         print(f"Companies found: {len(cards)}")
 
         # Limit: only collect the most recent N companies to reduce workload
-        MAX_COMPANIES = 4
+        # Read from environment if provided (useful for CI). Default to 20.
+        try:
+            MAX_COMPANIES = int(os.getenv('MAX_COMPANIES', '20'))
+        except Exception:
+            MAX_COMPANIES = 20
         # Keep the first MAX_COMPANIES entries from the listing (adjust if you prefer last N)
         cards = cards[:MAX_COMPANIES]
         print(f"Limiting to {len(cards)} companies (max {MAX_COMPANIES}).")
