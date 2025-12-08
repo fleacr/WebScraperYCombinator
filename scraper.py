@@ -4,6 +4,7 @@ import pandas as pd
 import json
 import html
 import re
+from datetime import datetime
 
 
 def _normalize_url(u: str) -> str:
@@ -16,6 +17,8 @@ def _normalize_url(u: str) -> str:
     return u
 
 START_URL = "https://www.ycombinator.com/companies"
+DICE_LOCAL = "Search Companies _ Dice.com.htm"
+DICE_URL = "https://www.dice.com/companies"
 
 
 async def scrape():
@@ -49,7 +52,7 @@ async def scrape():
             await page.mouse.wheel(0, 3000)
             await page.wait_for_timeout(1000)
 
-        print("Extracting company cards...")
+        print("Extracting company cards (YC)...")
 
         cards = await page.query_selector_all('a[href^="/companies/"]')
         print(f"Companies found: {len(cards)}")
@@ -241,25 +244,140 @@ async def scrape():
             except Exception as e:
                 print(f"Error opening company page {full_url}:", e)
 
+            # Provide a single 'Company Website' field: prefer the company website, otherwise company LinkedIn
+            company_website_value = company_website or company_linkedin or ""
+
             results.append({
                 "name": name.strip(),
-                "location": location.strip(),
-                "description": description.strip(),
-                "url": full_url,
-                "company_linkedin": company_linkedin,
-                "company_website": company_website,
-                "founder_linkedin": ";".join(founders_linkedin)
+                "Company Website": company_website_value
             })
+        # --- Now also try Dice (local file fallback to live site) ---
+        dice_results = []
+        try:
+            # Use a fresh browser instance for Dice to avoid depending on the YC browser state
+            dice_browser = await p.chromium.launch(headless=False)
+            dp = await dice_browser.new_page()
+            # Always load the live Dice companies listing
+            dice_start = DICE_URL
+            print(f"Loading live Dice site: {DICE_URL}")
+            await dp.goto(dice_start, wait_until="networkidle")
+            # basic scroll to load cards
+            last_h = 0
+            for _ in range(10):
+                h = await dp.evaluate("() => document.body.scrollHeight")
+                if h == last_h:
+                    break
+                last_h = h
+                await dp.mouse.wheel(0, 3000)
+                await dp.wait_for_timeout(800)
 
+            # try several selectors for company cards on Dice
+            card_selectors = ['company-card', 'a[href*="/company"]', 'a[href*="/companies"]', 'div.company-card', 'a[data-testid="company-card"]']
+            cards = []
+            for sel in card_selectors:
+                els = await dp.query_selector_all(sel)
+                if els:
+                    cards = els
+                    break
+
+            print(f"Dice cards found: {len(cards)}")
+            MAX_DICE = 20
+            cards = cards[:MAX_DICE]
+
+            for card in cards:
+                # try to get href from the card or inner anchor
+                href = None
+                try:
+                    href = await card.get_attribute('href')
+                except:
+                    href = None
+                if not href:
+                    a = await card.query_selector('a')
+                    href = await a.get_attribute('href') if a else None
+                if not href:
+                    # skip if no link
+                    continue
+                if href.startswith('/'):
+                    full = 'https://www.dice.com' + href
+                else:
+                    full = href
+
+                name = ''
+                website = ''
+                try:
+                    cpage = await dice_browser.new_page()
+                    await cpage.goto(full, wait_until='networkidle')
+                    # Try JSON-LD first
+                    try:
+                        scripts = await cpage.query_selector_all('script[type="application/ld+json"]')
+                        for s in scripts:
+                            txt = await s.text_content() or ''
+                            try:
+                                j = json.loads(txt)
+                            except Exception:
+                                continue
+                            # extract name and url
+                            if not name and isinstance(j, dict) and j.get('name'):
+                                name = j.get('name')
+                            if not website and isinstance(j, dict) and j.get('url'):
+                                website = _normalize_url(j.get('url'))
+                    except Exception:
+                        pass
+
+                    # DOM fallbacks
+                    if not name:
+                        h1 = await cpage.query_selector('h1')
+                        if h1:
+                            name = (await h1.inner_text()).strip()
+                    if not website:
+                        # common link selectors
+                        web_el = await cpage.query_selector('a[aria-label="Company website"]')
+                        if web_el:
+                            website = _normalize_url(await web_el.get_attribute('href') or '')
+                        else:
+                            anchors = await cpage.query_selector_all('a[href^="http"]')
+                            for a in anchors:
+                                href2 = await a.get_attribute('href')
+                                if href2 and 'dice.com' not in href2 and 'linkedin.com' not in href2:
+                                    website = _normalize_url(href2)
+                                    break
+                    await cpage.close()
+                except Exception:
+                    pass
+
+                if name:
+                    dice_results.append({
+                        'name': name.strip(),
+                        'Company Website': website or ''
+                    })
+
+            await dp.close()
+            await dice_browser.close()
+        except Exception as e:
+            print('Error scraping Dice:', e)
+
+        # combine YC results (from earlier) with dice_results
+        combined = results + dice_results
+
+        # close browser and return combined results
         await browser.close()
-        return results
+        return combined
 
 
 if __name__ == "__main__":
     companies = asyncio.run(scrape())
-    print(f"Saving {len(companies)} companies to CSV...")
+    print(f"Saving {len(companies)} companies to CSV (name + Company Website)...")
 
     df = pd.DataFrame(companies)
-    df.to_csv("yc_companies.csv", index=False)
+    # Ensure only the requested columns are written (name and Company Website)
+    df = df[["name", "Company Website"]]
+    try:
+        # Use semicolon as separator for better Excel compatibility in some locales
+        df.to_csv("yc_companies.csv", index=False, sep=';')
+        print("Saved to yc_companies.csv (semicolon-separated)")
+    except PermissionError:
+        alt = f"yc_companies_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        df.to_csv(alt, index=False, sep=';')
+        print(f"yc_companies.csv is locked; saved to {alt} (semicolon-separated) instead")
 
     print("Done!")
