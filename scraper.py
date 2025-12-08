@@ -24,7 +24,17 @@ DICE_URL = "https://www.dice.com/companies"
 
 async def scrape():
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
+        # Determine headless behavior:
+        # - If HEADLESS env var is set, respect it (0/false => headless=False)
+        # - Otherwise default to headless in CI (GITHUB_ACTIONS or CI env present),
+        #   and non-headless locally for easier debugging.
+        headless_env = os.getenv('HEADLESS')
+        if headless_env is not None:
+            headless = not (headless_env.lower() in ('0', 'false'))
+        else:
+            headless = bool(os.getenv('GITHUB_ACTIONS')) or bool(os.getenv('CI'))
+
+        browser = await p.chromium.launch(headless=headless)
         page = await browser.new_page()
 
         print("Loading YC companies page...")
@@ -260,7 +270,8 @@ async def scrape():
         dice_results = []
         try:
             # Use a fresh browser instance for Dice to avoid depending on the YC browser state
-            dice_browser = await p.chromium.launch(headless=False)
+            # Reuse the same headless decision (respect HEADLESS or CI detection)
+            dice_browser = await p.chromium.launch(headless=headless)
             dp = await dice_browser.new_page()
             # Always load the live Dice companies listing
             dice_start = DICE_URL
