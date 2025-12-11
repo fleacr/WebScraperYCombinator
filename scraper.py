@@ -5,7 +5,9 @@ import json
 import html
 import os
 import re
+from urllib.parse import urlparse
 from datetime import datetime
+from pathlib import Path
 
 
 def _normalize_url(u: str) -> str:
@@ -16,6 +18,29 @@ def _normalize_url(u: str) -> str:
     if u.startswith("//"):
         return "https:" + u
     return u
+
+
+def _normalize_name(n: str) -> str:
+    if not n:
+        return ""
+    return re.sub(r"\s+", " ", n.strip()).lower()
+
+def _extract_domain(url: str) -> str:
+    if not url:
+        return ""
+    try:
+        if url.startswith('//'):
+            url = 'https:' + url
+        if not url.startswith('http'):
+            url = 'http://' + url
+        parsed = urlparse(url)
+        host = parsed.netloc.lower()
+        if host.startswith('www.'):
+            host = host[4:]
+        return host
+    except Exception:
+        return ""
+    
 
 START_URL = "https://www.ycombinator.com/companies"
 DICE_LOCAL = "Search Companies _ Dice.com.htm"
@@ -37,7 +62,7 @@ async def scrape():
         browser = await p.chromium.launch(headless=headless)
         page = await browser.new_page()
 
-        print("Loading YC companies page...")
+        print("Loading Companies pages...")
         await page.goto(START_URL, wait_until="networkidle")
 
         # --- Select sorting: Launch Date ---
@@ -383,17 +408,92 @@ async def scrape():
 if __name__ == "__main__":
     companies = asyncio.run(scrape())
     print(f"Saving {len(companies)} companies to CSV (name + Company Website)...")
-
     df = pd.DataFrame(companies)
-    # Ensure only the requested columns are written (name and Company Website)
-    df = df[["name", "Company Website"]]
+    if df.empty:
+        df = pd.DataFrame(columns=['name', 'Company Website'])
+    else:
+        # Normalize column names if needed
+        if 'Company' in df.columns and 'name' not in df.columns:
+            df.rename(columns={'Company': 'name'}, inplace=True)
+        if 'Company Website' not in df.columns and 'CompanyWebsite' in df.columns:
+            df.rename(columns={'CompanyWebsite': 'Company Website'}, inplace=True)
+        df = df[[c for c in ['name', 'Company Website'] if c in df.columns]]
+
+    # Load existing CSV (prefer Companies.csv, fallback to yc_companies.csv)
+    existing_csv = 'Companies.csv' if Path('Companies.csv').exists() else ('yc_companies.csv' if Path('yc_companies.csv').exists() else None)
+    if existing_csv:
+        existing_df = pd.read_csv(existing_csv, sep=';', dtype=str, keep_default_na=False).fillna("")
+    else:
+        existing_df = pd.DataFrame(columns=['name', 'Company Website'])
+
+    # Ensure existing has required columns
+    if 'name' not in existing_df.columns and existing_df.shape[1] >= 1:
+        existing_df.rename(columns={existing_df.columns[0]: 'name'}, inplace=True)
+    if 'Company Website' not in existing_df.columns:
+        if 'CompanyWebsite' in existing_df.columns:
+            existing_df.rename(columns={'CompanyWebsite': 'Company Website'}, inplace=True)
+        else:
+            existing_df['Company Website'] = ''
+    # If an older 'highlight' column exists, rename it to the new 'Is a new company?' column
+    if 'highlight' in existing_df.columns and 'Is a new company?' not in existing_df.columns:
+        existing_df.rename(columns={'highlight': 'Is a new company?'}, inplace=True)
+
+    # Prepare for duplicate detection
+    existing_df['__name_norm'] = existing_df['name'].astype(str).apply(_normalize_name)
+    existing_df['__domain'] = existing_df['Company Website'].astype(str).apply(_extract_domain)
+    existing_names = set(existing_df['__name_norm'].tolist())
+    existing_domains = set(existing_df['__domain'].tolist())
+
+    # Filter new rows: not present by name or domain
+    new_rows = []
+    seen_names = set()
+    seen_domains = set()
+    for _, r in df.iterrows():
+        name = str(r.get('name', '')).strip()
+        site = str(r.get('Company Website', '')).strip()
+        name_norm = _normalize_name(name)
+        domain = _extract_domain(site)
+        if not name and not site:
+            continue
+        # Skip if exists by name or domain
+        if name_norm and name_norm in existing_names:
+            continue
+        if domain and domain in existing_domains:
+            continue
+        # Skip duplicates within this run
+        if name_norm and name_norm in seen_names:
+            continue
+        if domain and domain in seen_domains:
+            continue
+        seen_names.add(name_norm)
+        seen_domains.add(domain)
+        new_rows.append({'name': name, 'Company Website': site, 'Is a new company?': 'YES'})
+
+    # Ensure existing_df has the 'Is a new company?' column and clear any previous marker values
+    # (convert any old 'green' markers or existing YES values to blank — only today's adds will get 'YES')
+    existing_df['Is a new company?'] = ''
+
+    # Append new rows
+    if new_rows:
+        appended_df = pd.concat([existing_df[['name', 'Company Website', 'Is a new company?']], pd.DataFrame(new_rows)], ignore_index=True)
+    else:
+        appended_df = existing_df[['name', 'Company Website', 'Is a new company?']].copy()
+
+    # Drop duplicates by domain then by normalized name (keep existing entries)
+    appended_df['__name_norm'] = appended_df['name'].astype(str).apply(_normalize_name)
+    appended_df['__domain'] = appended_df['Company Website'].astype(str).apply(_extract_domain)
+    appended_df.drop_duplicates(subset=['__domain'], keep='first', inplace=True)
+    appended_df.drop_duplicates(subset=['__name_norm'], keep='first', inplace=True)
+    appended_df.drop(columns=['__name_norm', '__domain'], inplace=True, errors='ignore')
+
+    # Save CSV (semicolon-delimited) and report newly added count
+    new_count = len([r for r in new_rows])
     try:
-        # Use semicolon as separator for better Excel compatibility in some locales
-        df.to_csv("yc_companies.csv", index=False, sep=';')
-        print("Saved to yc_companies.csv (semicolon-separated)")
+        appended_df.to_csv('Companies.csv', index=False, sep=';')
+        print(f"Saved to Companies.csv (semicolon-separated). Added {new_count} new companies.")
     except PermissionError:
-        alt = f"yc_companies_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        df.to_csv(alt, index=False, sep=';')
-        print(f"yc_companies.csv is locked; saved to {alt} (semicolon-separated) instead")
+        alt = f"companies_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        appended_df.to_csv(alt, index=False, sep=';')
+        print(f"Companies.csv is locked; saved to {alt} (semicolon-separated) instead. Added {new_count} new companies.")
 
     print("Done!")

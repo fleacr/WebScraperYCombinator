@@ -2,8 +2,8 @@ name: Weekly Scrape
 
 on:
   schedule:
-    # Every Monday at 07:00 AM GMT-6 -> 13:00 UTC
-    - cron: '0 13 * * 1'
+    # Every weekday (Mon-Fri) at 07:30 AM GMT-6 -> 13:30 UTC
+    - cron: '30 13 * * 1-5'
   workflow_dispatch: {}
 
 jobs:
@@ -35,13 +35,14 @@ jobs:
           # Run headless in CI and limit companies to 20 by default
           HEADLESS: '1'
           MAX_COMPANIES: '20'
+          MAX_WELLFOUND: '15'
         run: python scraper.py
 
       - name: Upload CSV artifact
         uses: actions/upload-artifact@v4
         with:
           name: yc_companies
-          path: yc_companies*.csv
+          path: Companies*.csv
 
       - name: Send CSV by email (SMTP)
         uses: dawidd6/action-send-mail@v3
@@ -58,4 +59,4 @@ jobs:
           # secure should be true for TLS; set to false if your server doesn't support it
           secure: true
           # Attach the file (workflow writes `yc_companies.csv` by default)
-          attachments: yc_companies.csv
+          attachments: Companies.csv
