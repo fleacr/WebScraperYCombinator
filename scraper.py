@@ -482,8 +482,13 @@ if __name__ == "__main__":
     # Drop duplicates by domain then by normalized name (keep existing entries)
     appended_df['__name_norm'] = appended_df['name'].astype(str).apply(_normalize_name)
     appended_df['__domain'] = appended_df['Company Website'].astype(str).apply(_extract_domain)
-    appended_df.drop_duplicates(subset=['__domain'], keep='first', inplace=True)
+    # First, drop duplicates by normalized name (prefer existing entries)
     appended_df.drop_duplicates(subset=['__name_norm'], keep='first', inplace=True)
+    # Then, drop duplicates by domain but only for rows that have a non-empty domain
+    has_domain = appended_df['__domain'].astype(bool)
+    df_with_domain = appended_df[has_domain].drop_duplicates(subset=['__domain'], keep='first')
+    df_no_domain = appended_df[~has_domain]
+    appended_df = pd.concat([df_with_domain, df_no_domain], ignore_index=True)
     appended_df.drop(columns=['__name_norm', '__domain'], inplace=True, errors='ignore')
 
     # Save CSV (semicolon-delimited) and report newly added count
@@ -491,9 +496,8 @@ if __name__ == "__main__":
     try:
         appended_df.to_csv('Companies.csv', index=False, sep=';')
         print(f"Saved to Companies.csv (semicolon-separated). Added {new_count} new companies.")
-    except PermissionError:
-        alt = f"companies_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        appended_df.to_csv(alt, index=False, sep=';')
-        print(f"Companies.csv is locked; saved to {alt} (semicolon-separated) instead. Added {new_count} new companies.")
+    except PermissionError as e:
+        print("Error: could not write Companies.csv — file may be open or locked.")
+        raise
 
     print("Done!")
