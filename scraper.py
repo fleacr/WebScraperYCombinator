@@ -467,11 +467,11 @@ if __name__ == "__main__":
             continue
         seen_names.add(name_norm)
         seen_domains.add(domain)
-        new_rows.append({'name': name, 'Company Website': site, 'Is a new company?': 'YES'})
+        new_rows.append({'name': name, 'Company Website': site, 'Is a new company?': 'Yes'})
 
-    # Ensure existing_df has the 'Is a new company?' column and clear any previous marker values
-    # (convert any old 'green' markers or existing YES values to blank — only today's adds will get 'YES')
-    existing_df['Is a new company?'] = ''
+    # Ensure existing_df has the 'Is a new company?' column and set previous entries to 'No'
+    # (previously-marked 'Yes' rows become 'No'; only companies added in this run will get 'Yes')
+    existing_df['Is a new company?'] = 'No'
 
     # Append new rows
     if new_rows:
