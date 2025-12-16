@@ -41,7 +41,7 @@ jobs:
       - name: Upload CSV artifact
         uses: actions/upload-artifact@v4
         with:
-          name: yc_companies
+          name: Companies
           path: Companies*.csv
 
       # Email step removed -- workflow will no longer send the CSV by email
