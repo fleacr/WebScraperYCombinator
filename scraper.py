@@ -469,27 +469,24 @@ if __name__ == "__main__":
         seen_domains.add(domain)
         new_rows.append({'name': name, 'Company Website': site, 'Is a new company?': 'Yes'})
 
-    # Ensure existing_df has the 'Is a new company?' column and set previous entries to 'No'
-    # (previously-marked 'Yes' rows become 'No'; only companies added in this run will get 'Yes')
-    existing_df['Is a new company?'] = 'No'
-
-    # Append new rows
-    if new_rows:
-        appended_df = pd.concat([existing_df[['name', 'Company Website', 'Is a new company?']], pd.DataFrame(new_rows)], ignore_index=True)
+    # Ensure existing_df has the 'Is a new company?' column, but do not overwrite existing values (preserve manual entries)
+    if 'Is a new company?' not in existing_df.columns:
+        existing_df['Is a new company?'] = 'No'
     else:
-        appended_df = existing_df[['name', 'Company Website', 'Is a new company?']].copy()
+        existing_df['Is a new company?'] = existing_df['Is a new company?'].fillna('No')
 
-    # Drop duplicates by domain then by normalized name (keep existing entries)
-    appended_df['__name_norm'] = appended_df['name'].astype(str).apply(_normalize_name)
-    appended_df['__domain'] = appended_df['Company Website'].astype(str).apply(_extract_domain)
-    # First, drop duplicates by normalized name (prefer existing entries)
-    appended_df.drop_duplicates(subset=['__name_norm'], keep='first', inplace=True)
-    # Then, drop duplicates by domain but only for rows that have a non-empty domain
-    has_domain = appended_df['__domain'].astype(bool)
-    df_with_domain = appended_df[has_domain].drop_duplicates(subset=['__domain'], keep='first')
-    df_no_domain = appended_df[~has_domain]
-    appended_df = pd.concat([df_with_domain, df_no_domain], ignore_index=True)
-    appended_df.drop(columns=['__name_norm', '__domain'], inplace=True, errors='ignore')
+    # Append new rows (preserve all existing/manual rows). new_rows were already filtered against existing names/domains.
+    if new_rows:
+        appended_df = pd.concat([existing_df, pd.DataFrame(new_rows)], ignore_index=True)
+    else:
+        appended_df = existing_df.copy()
+
+    # Ensure columns order includes our important columns first
+    cols = [c for c in ['name', 'Company Website', 'Is a new company?'] if c in appended_df.columns]
+    appended_df = appended_df[cols + [c for c in appended_df.columns if c not in cols]]
+
+    # Do not drop duplicates across the full dataset to avoid accidentally removing manual entries
+    # (we already prevented adding duplicate new rows earlier by checking existing names/domains).
 
     # Save CSV (semicolon-delimited) and report newly added count
     new_count = len([r for r in new_rows])
