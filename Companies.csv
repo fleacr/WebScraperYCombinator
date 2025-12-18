@@ -1,20 +1,214 @@
 name;Company Website;Is a new company?
-Caretta;https://www.caretta.so;No
-21st;https://21st.dev;No
-MirageDoodle, Inc.;https://miragedoodle.com/;No
-Skillsync;https://skillsync.wiki;No
-Arthrex Inc.;https://careers.arthrex.com/;No
-Techim INC;http://techim.ca;No
-Lusso Tech LLC;https://lussotech.com/;No
-eSolutionsFirst, LLC;https://esolutionsfirst.com/;No
-aptlogix LLC;https://aptlogix.com/;No
-Visionary Integration Professionals;https://trustvip.com/;No
-Gainwell Technologies LLC;https://www.gainwelltechnologies.com/careers/;No
-Document Storage Systems Inc;https://www.dssinc.com/life-at-dss;No
-SCMChamps;https://scmchamps.com;No
-Oxus;https://oxus-ai.com/;No
-LegalOS;https://www.legalos.ai;No
-Sonarly;https://sonarly.dev;No
-Technocrafts, Inc.;http://www.tcsin.com;No
-American Management Group;https://amgtgroup.com/;No
-Bluelight;https://www.linkedin.com/company/bluelightco/people/;No
+Bluelight;https://www.linkedin.com/company/bluelightco/people/;Yes
+Launch Potato;https://www.linkedin.com/company/launchpotato/people/;Yes
+ALLSTARSIT;https://www.linkedin.com/company/allstarsit/people/;Yes
+Lumenalta;https://www.linkedin.com/company/lumenalta/people/;Yes
+Avyre;https://www.linkedin.com/company/avyre/people/;Yes
+Sparq;https://www.linkedin.com/company/teamsparq/people/;Yes
+Plannatech;https://www.linkedin.com/company/plannatech/people/;Yes
+Coforge;https://www.linkedin.com/company/coforge-tech/people/;Yes
+Blackbaud;https://www.linkedin.com/company/blackbaud/people/;Yes
+OfficeSpace Software;https://www.linkedin.com/company/officespace-software/people/;Yes
+Backcountry;https://www.linkedin.com/company/backcountry/people/;Yes
+Proxify;https://www.linkedin.com/company/proxify-se/people/;Yes
+Excel Nearshore;https://www.linkedin.com/company/excelnearshore/;Yes
+Wisevu;https://www.linkedin.com/company/wisevu/;Yes
+Imprivata;https://www.linkedin.com/company/imprivata/people/;Yes
+Precision AQ;https://www.linkedin.com/company/precision-aq/people/;Yes
+Cargill;https://www.linkedin.com/company/cargill/people/;Yes
+Bryant Park Consulting;https://www.linkedin.com/company/bryant-park-consulting/people/;Yes
+Bring IT;https://www.linkedin.com/company/bringitps/people/;Yes
+LeafLink;https://www.linkedin.com/company/leaflink/people/;Yes
+HR Acuity;www.linkedin.com/company/hr-acuity/people/;Yes
+WestRock Company;https://www.linkedin.com/company/westrockcompany/people/;Yes
+One Inc;https://www.linkedin.com/company/one-inc/people/;Yes
+Etsy;https://www.linkedin.com/company/etsy/people/;Yes
+Linqia;https://www.linkedin.com/company/linqia/people/;Yes
+Synergy Business Consulting, Inc.;https://www.linkedin.com/company/synergy-business-consulting-inc./people/;Yes
+Resend;https://www.linkedin.com/company/resend/people/;Yes
+Factored;https://www.linkedin.com/company/factoredai/people/;Yes
+Abstra;https://www.linkedin.com/company/abstratech/people/;Yes
+Confiz;https://www.linkedin.com/company/confiz/people/;Yes
+Shrine Development;https://www.linkedin.com/company/shrinedev/people/;Yes
+Platter;https://www.linkedin.com/company/getplatter/people/;Yes
+Talkpush;https://www.linkedin.com/company/talkpush/people/;Yes
+PLAYSTUDIOS;https://www.linkedin.com/company/playstudios/people/;Yes
+Aimpoint Digital;https://www.linkedin.com/company/aimpoint-digital/people/;Yes
+Upstart 13;https://www.linkedin.com/company/upstart13/people/;Yes
+Propelus;https://www.linkedin.com/company/propelus-solutions/people/;Yes
+OpenText;https://www.linkedin.com/company/opentext/people/;Yes
+Fuse;https://www.linkedin.com/company/fuse-uk/people/;Yes
+Acquia;https://www.linkedin.com/company/acquia/people/;Yes
+LSEG;https://www.linkedin.com/company/london-stock-exchange-group/people/;Yes
+Vanguard X;https://www.linkedin.com/company/vanguard-x/people/;Yes
+Revolut;https://www.linkedin.com/company/revolut/people/;Yes
+Zeta Global;https://www.linkedin.com/company/zetaglobal/people/;Yes
+Omnicom;https://www.linkedin.com/company/omnicom/people/;Yes
+Perform;https://www.linkedin.com/company/total-performance-consulting/people/;Yes
+Andela;https://www.linkedin.com/company/andela/people/;Yes
+Superside;https://www.linkedin.com/company/superside/people/;Yes
+Automattic;https://www.linkedin.com/company/automattic/people/;Yes
+Doist;https://www.linkedin.com/company/doist/people/;Yes
+Brex;https://www.linkedin.com/company/brexhq/people/;Yes
+SpotOn;https://www.linkedin.com/company/spoton/people/;Yes
+Webflow;https://www.linkedin.com/company/webflow-inc-/people/;Yes
+Jeeves;https://www.linkedin.com/company/tryjeeves/people/;Yes
+Scalable Path;https://www.linkedin.com/company/scalable-path/people/;Yes
+Coinbase;https://www.linkedin.com/company/coinbase/people/;Yes
+Tether.io;https://www.linkedin.com/company/tether/people/;Yes
+SmarterSelect;https://www.linkedin.com/company/smarterselect/people/;Yes
+Chainalysis;https://www.linkedin.com/company/chainalysis/people/;Yes
+TradeStation;https://www.linkedin.com/company/tradestation/people/;Yes
+SurveyMonkey;https://www.linkedin.com/company/surveymonkey/people/;Yes
+Sapiens Development;https://www.linkedin.com/company/sapiens-software/people/;Yes
+FPT Latin America;https://www.linkedin.com/company/fpt-software-latam/people/;Yes
+King Tide;https://www.linkedin.com/company/king-tide/people/;Yes
+readymind;https://www.linkedin.com/company/readymind-it/people/;Yes
+Raona;https://www.linkedin.com/company/raona/people/;Yes
+SolutionStream;https://www.linkedin.com/company/solstr/people/;Yes
+Kake;https://www.linkedin.com/company/kake/people/;Yes
+Smartcat;https://www.linkedin.com/company/smartcatai/people/;Yes
+GreenSlate;https://www.linkedin.com/company/thisisgslate/;Yes
+Armis;https://www.linkedin.com/company/armis-security/people/;Yes
+Netskope;https://www.linkedin.com/company/netskope/people/;Yes
+Sumo Logic;https://www.linkedin.com/company/sumo-logic/people/;Yes
+truData Solutions;https://www.linkedin.com/company/trudata/people/;Yes
+Athenaworks;https://www.linkedin.com/company/athenaworks/people/;Yes
+Envision Horizons;https://www.linkedin.com/company/envision-horizons/people/;Yes
+Uptalent.io;https://www.linkedin.com/company/uptalent-io/people/;Yes
+Adoreal;https://www.linkedin.com/company/adoreal-official/people/;Yes
+Sparkrock;https://www.linkedin.com/company/sparkrock/people/;Yes
+TreviPay;https://www.linkedin.com/company/trevipay/people/;Yes
+Parallelz;https://www.linkedin.com/company/parallelz/people/;Yes
+Salvo Software;https://www.linkedin.com/company/salvosoftware/people/;Yes
+LunaJoy Health;https://www.linkedin.com/company/lunajoyhealth/people/;Yes
+UA Brands (Uniform Advantage Brands);https://www.linkedin.com/company/uniform-advantage/people/;Yes
+Delbridge Solutions;https://www.linkedin.com/company/delbridge-solutions/people/;Yes
+FusionHit;https://www.linkedin.com/company/fusionhit/people/;Yes
+ASAPP;https://www.linkedin.com/company/asappco/people/;Yes
+Swimlane;https://www.linkedin.com/company/swimlane/people/;Yes
+HTD Health;https://www.linkedin.com/company/htd-health/people/;Yes
+Redis;https://www.linkedin.com/company/redisinc/people/;Yes
+Autodesk;https://www.linkedin.com/company/autodesk/people/;Yes
+Pythian;https://www.linkedin.com/company/pythian/people/;Yes
+Xseed Solutions;https://www.linkedin.com/company/xseed-solutions/people/;Yes
+Wunderman Thompson;https://www.linkedin.com/company/wunderman-thompson-/people/;Yes
+Tebra;https://www.linkedin.com/company/tebra/people/;Yes
+number 8 solutions;https://www.linkedin.com/company/number-8-solutions/people/;Yes
+Acronis;https://www.linkedin.com/company/acronis/people/;Yes
+Nearform;https://www.linkedin.com/company/nearform/people/;Yes
+Bitso;https://www.linkedin.com/company/bitso/people/;Yes
+Rocket.Chat;https://www.linkedin.com/company/rocket-chat/people/;Yes
+MindCloud;https://www.linkedin.com/company/yourmindcloud/people/;Yes
+Rec Technologies;https://www.linkedin.com/company/rec-technologies/people/;Yes
+Braze;https://www.linkedin.com/company/braze/people/;Yes
+C3 AI;https://www.linkedin.com/company/c3-ai-enterprise-ai/people/;Yes
+Tendo;https://www.linkedin.com/company/tendo-connects/people/;Yes
+EarnIn;https://www.linkedin.com/company/earnin/people/;Yes
+Fictiv;https://www.linkedin.com/company/fictiv/people/;Yes
+Brightcove;https://www.linkedin.com/company/brightcove/people/;Yes
+Gainwell Technologies;https://www.linkedin.com/company/gainwell-technologies/people/;Yes
+ActiveCampaign;https://www.linkedin.com/company/activecampaign/people/;Yes
+MLabs;https://www.linkedin.com/company/mlabsconsulting/people/;Yes
+Avalith;https://www.linkedin.com/company/avalith-net/people/;Yes
+OpenWorks;https://www.linkedin.com/company/openworks-staff-augmentation/people/;Yes
+Rooam;https://www.linkedin.com/company/rooam/people/;Yes
+Backblaze;https://www.linkedin.com/company/backblaze/people/;Yes
+Liferaft;https://www.linkedin.com/company/liferaftlabs/people/;Yes
+Pure Storage;https://www.linkedin.com/company/purestorage/people/;Yes
+Forte Group;https://www.linkedin.com/company/fortegroup/people/;Yes
+Vinta Software;https://www.linkedin.com/company/vintasoftware/people/;Yes
+DreamDev;https://www.linkedin.com/company/dreamdevio/people/;Yes
+Algotive;https://www.linkedin.com/company/algotive/people/;Yes
+Plusgrade;https://www.linkedin.com/company/plusgrade/people/;Yes
+Graphite;https://www.linkedin.com/company/graphitehq/people/;Yes
+XumaK;https://www.linkedin.com/company/xumak/people/;Yes
+RxSense;https://www.linkedin.com/company/rxsense/people/;Yes
+Valor Software;https://www.linkedin.com/company/valor-software/people/;Yes
+Grandata;https://www.linkedin.com/company/grandata/people/;Yes
+Capital One;https://www.linkedin.com/company/capital-one/people/;Yes
+Simon AI;https://www.linkedin.com/company/simon-ai-the-agentic-marketing-platform/people/;Yes
+Summit Digital Group;https://www.linkedin.com/company/summitdigital/people/;Yes
+Sola Wood Flowers;https://www.linkedin.com/company/sola-wood-flowers-usa/people/;Yes
+Cohesity;https://www.linkedin.com/company/cohesity/people/;Yes
+Orion Global Solutions;https://www.linkedin.com/company/orion-global-solutions/people/;Yes
+VeriPark;https://www.linkedin.com/company/veripark/;Yes
+iSeatz;https://www.linkedin.com/company/iseatz/people/;Yes
+RevenueCat;https://www.linkedin.com/company/revenuecat/people/;Yes
+BetterUp;https://www.linkedin.com/company/betterup/people/;Yes
+Blue Alba;https://www.linkedin.com/company/blue-alba/people/;Yes
+Ensolvers;https://www.linkedin.com/company/ensolvers/people/;Yes
+Evolve Squads;https://www.linkedin.com/company/evolvesquads/people/;Yes
+ImagineX Studio - Costa Rica;https://www.linkedin.com/company/imaginexstudiocr/people/;Yes
+Hangar Worldwide;https://www.linkedin.com/company/criticalmasslatam/people/;Yes
+OatFi;https://www.linkedin.com/company/oat-financial/people/;Yes
+Quartile;https://www.linkedin.com/company/quartiledigital/people/;Yes
+Zemoga;https://www.linkedin.com/company/zemoga/people/;Yes
+Linnworks;https://www.linkedin.com/company/linnworks/people/;Yes
+Inviqa - A Havas Company;https://www.linkedin.com/company/inviqa/people/;Yes
+Jellyfish;https://www.linkedin.com/company/jellyfish-co/people/;Yes
+Thought Machine;https://www.linkedin.com/company/thought-machine/people/;Yes
+Mambu;https://www.linkedin.com/company/mambu/people/;Yes
+Hansen Technologies;https://www.linkedin.com/company/hansen-technologies/people/;Yes
+Brocsoft;https://www.linkedin.com/company/brocsoft/people/;Yes
+Fulcrum;https://www.linkedin.com/company/fulcrum-mobile-data-collection/people/;Yes
+Airfinity Ltd;https://www.linkedin.com/company/airfinity-ltd/people/;Yes
+Team Liquid;https://www.linkedin.com/company/teamliquid-enterprises-llc/people/;Yes
+Monks Technology Services;https://www.linkedin.com/company/monkstechservices/people/;Yes
+TheoremOne;https://www.linkedin.com/company/theoremone/people/;Yes
+Modus Create;https://www.linkedin.com/company/modus-create/people/;Yes
+CallMiner;https://www.linkedin.com/company/callminer/people/;Yes
+Crossover;https://www.linkedin.com/company/crossover/people/;Yes
+WebRTC.ventures;https://www.linkedin.com/company/webrtc-ventures/people/;Yes
+Visma;https://www.linkedin.com/company/visma/people/;Yes
+Focus Services;https://www.linkedin.com/company/focus-services/people/;Yes
+Crewfare;https://www.linkedin.com/company/crewfare/people/;Yes
+IP Pathways;https://www.linkedin.com/company/ip-pathways/people/;Yes
+Ledn;https://www.linkedin.com/company/ledn-inc/people/;Yes
+DevBase;https://www.linkedin.com/company/mydevbase/people/;Yes
+Band of Coders;https://www.linkedin.com/company/band-of-coders/people/;Yes
+Amoeb AI;https://www.linkedin.com/company/amoeb-ai/people/;Yes
+FundThrough;https://www.linkedin.com/company/fundthrough/people/;Yes
+Fluxon;https://www.linkedin.com/company/fluxon/people/;Yes
+JPG Store;https://www.linkedin.com/company/jpgstore/people/;Yes
+Infodat;https://www.linkedin.com/company/infodatinc/people/;Yes
+sFOX;https://www.linkedin.com/company/sfox/people/;Yes
+Riverside;https://www.linkedin.com/company/riverside-fm/people/;Yes
+Solvd, Inc.;https://www.linkedin.com/company/solvdinc/people/;Yes
+LoopStudio;https://www.linkedin.com/company/loopstudio-dev/;Yes
+Constellation;https://www.linkedin.com/company/hello-constellation/people/;Yes
+Block;https://www.linkedin.com/company/joinblock/people/;Yes
+Zendesk;https://www.linkedin.com/company/zendesk/people/;Yes
+Rewind;https://www.linkedin.com/company/rewind-io/people/;Yes
+RedCloud;https://www.linkedin.com/company/redcloud-it/people/;Yes
+Shockdav;https://www.linkedin.com/company/shockdav/people/;Yes
+InEvent;https://www.linkedin.com/company/ineventapp/people/;Yes
+Hudson Talent Solutions;https://www.linkedin.com/company/hudson-talent-solutions/people/;Yes
+Runflow;https://www.linkedin.com/company/runflowai/people/;Yes
+Thoropass;https://www.linkedin.com/company/thoropass/people/;Yes
+Perseus Group, Constellation Software;https://www.linkedin.com/company/perseus-group-constellation-software-inc/people/;Yes
+Safari AI;https://www.linkedin.com/company/safariai/people/;Yes
+BAL;https://www.linkedin.com/company/bal-llp/people/;Yes
+Checkr, Inc.;https://www.linkedin.com/company/checkr-com/people/;Yes
+Manhattan Associates;https://www.linkedin.com/company/manhattan-associates/people/;Yes
+Rippling;https://www.linkedin.com/company/rippling/people/;Yes
+Pretty Technical;https://www.linkedin.com/company/pretty-technical/people/;Yes
+BayAreaGraphics;https://www.linkedin.com/company/bay-area-graphics-2004/people/;Yes
+GrapeData;https://www.linkedin.com/company/grapedata/;Yes
+Develative;https://www.linkedin.com/company/develative/;Yes
+AxionOrbital Space;https://axionorbital.space/;Yes
+Travo;https://www.travoai.com/;Yes
+Prana;https://pranahealth.io;Yes
+Ressl AI;https://ressl.ai;Yes
+Northern Base;https://northern-base.com/;Yes
+Technocrafts, Inc.;http://www.tcsin.com;Yes
+Arthrex Inc.;https://careers.arthrex.com/;Yes
+Techim INC;http://techim.ca;Yes
+Lusso Tech LLC;https://lussotech.com/;Yes
+eSolutionsFirst, LLC;https://esolutionsfirst.com/;Yes
+aptlogix LLC;https://aptlogix.com/;Yes
+Visionary Integration Professionals;https://trustvip.com/;Yes
+Gainwell Technologies LLC;https://www.gainwelltechnologies.com/careers/;Yes
+DoorDash;http://doordash.com;Yes
+Airbnb;http://airbnb.com;Yes
+Oklo;http://oklo.com;Yes
