@@ -438,11 +438,14 @@ if __name__ == "__main__":
     if 'highlight' in existing_df.columns and 'Is a new company?' not in existing_df.columns:
         existing_df.rename(columns={'highlight': 'Is a new company?'}, inplace=True)
 
-    # Prepare for duplicate detection
-    existing_df['__name_norm'] = existing_df['name'].astype(str).apply(_normalize_name)
-    existing_df['__domain'] = existing_df['Company Website'].astype(str).apply(_extract_domain)
-    existing_names = set(existing_df['__name_norm'].tolist())
-    existing_domains = set(existing_df['__domain'].tolist())
+    # Clean up any leftover temporary columns from older runs
+    for _tmp in ['__name_norm', '__domain']:
+        if _tmp in existing_df.columns:
+            existing_df.drop(columns=[_tmp], inplace=True)
+
+    # Prepare for duplicate detection (compute sets without adding temporary DataFrame columns)
+    existing_names = set(existing_df['name'].astype(str).apply(_normalize_name).tolist())
+    existing_domains = set(existing_df['Company Website'].astype(str).apply(_extract_domain).tolist())
 
     # Filter new rows: not present by name or domain
     new_rows = []
@@ -491,6 +494,8 @@ if __name__ == "__main__":
     # Save CSV (semicolon-delimited) and report newly added count
     new_count = len([r for r in new_rows])
     try:
+        # Ensure we don't save any temporary columns that might persist from older runs
+        appended_df.drop(columns=['__name_norm', '__domain'], inplace=True, errors='ignore')
         appended_df.to_csv('Companies.csv', index=False, sep=';')
         print(f"Saved to Companies.csv (semicolon-separated). Added {new_count} new companies.")
     except PermissionError as e:
