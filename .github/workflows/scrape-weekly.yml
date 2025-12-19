@@ -38,10 +38,10 @@ jobs:
           MAX_WELLFOUND: '15'
         run: python scraper.py
 
-      - name: Upload CSV artifact
+      - name: Upload HTML artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Companies
-          path: Companies*.csv
+          name: Companies_HTML
+          path: Companies.html
 
       # Email step removed -- workflow will no longer send the CSV by email

@@ -494,12 +494,77 @@ if __name__ == "__main__":
     # Save CSV (semicolon-delimited) and report newly added count
     new_count = len([r for r in new_rows])
     try:
-        # Ensure we don't save any temporary columns that might persist from older runs
+        # Ensure we don't keep any temporary columns that might persist from older runs
         appended_df.drop(columns=['__name_norm', '__domain'], inplace=True, errors='ignore')
-        appended_df.to_csv('Companies.csv', index=False, sep=';')
-        print(f"Saved to Companies.csv (semicolon-separated). Added {new_count} new companies.")
-    except PermissionError as e:
-        print("Error: could not write Companies.csv — file may be open or locked.")
+
+        # --- Generate HTML report (overwritten on each run) ---
+        try:
+            html_out = 'Companies.html'
+            # Ensure the three columns exist so the table always has the same structure
+            required_cols = ['name', 'Company Website', 'Is a new company?']
+            for c in required_cols:
+                if c not in appended_df.columns:
+                    appended_df[c] = ''
+
+            rows_html = []
+            for _, row in appended_df.iterrows():
+                name = html.escape(str(row.get('name', '') or ''))
+                website = str(row.get('Company Website', '') or '')
+                if website:
+                    website_esc = html.escape(website, quote=True)
+                    website_html = f'<a href="{website_esc}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">{html.escape(website)}</a>'
+                else:
+                    website_html = ''
+                is_new = html.escape(str(row.get('Is a new company?', '') or 'No'))
+                rows_html.append(
+                    f'<tr class="bg-white even:bg-gray-50">'
+                    f'<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{name}</td>'
+                    f'<td class="px-6 py-4 text-sm text-gray-500">{website_html}</td>'
+                    f'<td class="px-6 py-4 text-sm text-gray-500">{is_new}</td>'
+                    f'</tr>'
+                )
+
+            now = datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')
+            html_content = f'''<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<script src="https://cdn.tailwindcss.com"></script>
+<title>Companies</title>
+</head>
+<body class="bg-gray-100 p-6">
+<div class="max-w-6xl mx-auto">
+  <div class="mb-6 flex items-baseline justify-between">
+    <h1 class="text-2xl font-bold">Companies</h1>
+    <div class="text-sm text-gray-600">Updated: {now} — Added {new_count} new</div>
+  </div>
+  <div class="overflow-x-auto bg-white shadow rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company Website</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Is a new company?</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        {''.join(rows_html)}
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>'''
+
+            with open(html_out, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+            print(f"Saved HTML report to {html_out}. Added {new_count} new companies.")
+        except Exception as e:
+            print("Warning: could not write HTML report:", e)
+
+    except Exception as e:
+        print("Error while preparing report:", e)
         raise
 
     print("Done!")
