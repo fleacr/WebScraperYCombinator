@@ -493,8 +493,13 @@ if __name__ == "__main__":
     else:
         appended_df = existing_df.copy()
 
-    # Ensure columns order includes our important columns first
-    cols = [c for c in ['name', 'Company Website', 'Tech Hiring Platforms', 'Is a new company?'] if c in appended_df.columns]
+    # Add numbering column where the most recent company has the highest number.
+    appended_df = appended_df.reset_index(drop=True)
+    total = len(appended_df)
+    # Insert 'No.' column at position 0 with values total, total-1, ..., 1
+    appended_df.insert(0, 'No.', list(range(total, 0, -1)))
+    # Ensure columns order includes our important columns first (with 'No.' first)
+    cols = [c for c in ['No.', 'name', 'Company Website', 'Tech Hiring Platforms', 'Is a new company?'] if c in appended_df.columns]
     appended_df = appended_df[cols + [c for c in appended_df.columns if c not in cols]]
 
     # Do not drop duplicates across the full dataset to avoid accidentally removing manual entries
@@ -509,8 +514,8 @@ if __name__ == "__main__":
         # --- Generate HTML report (overwritten on each run) ---
         try:
             html_out = 'Companies.html'
-            # Ensure the four columns exist so the table always has the same structure
-            required_cols = ['name', 'Company Website', 'Tech Hiring Platforms', 'Is a new company?']
+            # Ensure the five columns exist so the table always has the same structure (include numbering)
+            required_cols = ['No.', 'name', 'Company Website', 'Tech Hiring Platforms', 'Is a new company?']
             for c in required_cols:
                 if c not in appended_df.columns:
                     appended_df[c] = ''
@@ -531,8 +536,10 @@ if __name__ == "__main__":
                 tr_class = 'bg-gray-50 even:bg-gray-100' if is_new_flag else 'bg-white even:bg-gray-50'
                 # bold the 'Yes' text for new companies, keep 'No' plain
                 is_new_html = '<strong>Yes</strong>' if is_new_flag else html.escape('No')
+                number = html.escape(str(row.get('No.', '') or ''))
                 rows_html.append(
                     f'<tr class="{tr_class}">'
+                    f'<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{number}</td>'
                     f'<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{name}</td>'
                     f'<td class="px-6 py-4 text-sm text-gray-500">{website_html}</td>'
                     f'<td class="px-6 py-4 text-sm text-gray-500">{platform}</td>'
@@ -561,10 +568,11 @@ if __name__ == "__main__":
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company Website</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tech Hiring Platforms</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Is a new company?</th>
+          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">No.</th>
+          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Company Website</th>
+          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tech Hiring Platforms</th>
+          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Is a new company?</th>
         </tr>
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
