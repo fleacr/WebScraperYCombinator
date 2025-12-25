@@ -6,7 +6,7 @@ import html
 import os
 import re
 from urllib.parse import urlparse
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 
@@ -289,7 +289,8 @@ async def scrape():
 
             results.append({
                 "name": name.strip(),
-                "Company Website": company_website_value
+                "Company Website": company_website_value,
+                "Tech Hiring Platforms": "ycombinator.com"
             })
         # --- Now also try Dice (local file fallback to live site) ---
         dice_results = []
@@ -389,7 +390,8 @@ async def scrape():
                 if name:
                     dice_results.append({
                         'name': name.strip(),
-                        'Company Website': website or ''
+                        'Company Website': website or '',
+                        'Tech Hiring Platforms': 'dice.com'
                     })
 
             await dp.close()
@@ -417,7 +419,7 @@ if __name__ == "__main__":
             df.rename(columns={'Company': 'name'}, inplace=True)
         if 'Company Website' not in df.columns and 'CompanyWebsite' in df.columns:
             df.rename(columns={'CompanyWebsite': 'Company Website'}, inplace=True)
-        df = df[[c for c in ['name', 'Company Website'] if c in df.columns]]
+        df = df[[c for c in ['name', 'Company Website', 'Tech Hiring Platforms'] if c in df.columns]]
 
     # Load existing CSV (prefer Companies.csv, fallback to yc_companies.csv)
     existing_csv = 'Companies.csv' if Path('Companies.csv').exists() else ('yc_companies.csv' if Path('yc_companies.csv').exists() else None)
@@ -443,6 +445,10 @@ if __name__ == "__main__":
         if _tmp in existing_df.columns:
             existing_df.drop(columns=[_tmp], inplace=True)
 
+    # Ensure existing_df has the 'Tech Hiring Platforms' column
+    if 'Tech Hiring Platforms' not in existing_df.columns:
+        existing_df['Tech Hiring Platforms'] = ''
+
     # Prepare for duplicate detection (compute sets without adding temporary DataFrame columns)
     existing_names = set(existing_df['name'].astype(str).apply(_normalize_name).tolist())
     existing_domains = set(existing_df['Company Website'].astype(str).apply(_extract_domain).tolist())
@@ -454,6 +460,7 @@ if __name__ == "__main__":
     for _, r in df.iterrows():
         name = str(r.get('name', '')).strip()
         site = str(r.get('Company Website', '')).strip()
+        tech_platform = str(r.get('Tech Hiring Platforms', '')).strip()
         name_norm = _normalize_name(name)
         domain = _extract_domain(site)
         if not name and not site:
@@ -470,22 +477,24 @@ if __name__ == "__main__":
             continue
         seen_names.add(name_norm)
         seen_domains.add(domain)
-        new_rows.append({'name': name, 'Company Website': site, 'Is a new company?': 'Yes'})
+        new_rows.append({'name': name, 'Company Website': site, 'Is a new company?': 'Yes', 'Tech Hiring Platforms': tech_platform})
 
-    # Ensure existing_df has the 'Is a new company?' column, but do not overwrite existing values (preserve manual entries)
+    # Ensure existing_df has the 'Is a new company?' column and reset all previous 'Yes' flags.
+    # Only companies added in the current run will be marked 'Yes'.
     if 'Is a new company?' not in existing_df.columns:
         existing_df['Is a new company?'] = 'No'
     else:
-        existing_df['Is a new company?'] = existing_df['Is a new company?'].fillna('No')
+        # Reset all existing entries to 'No' so only current-run additions get 'Yes'
+        existing_df['Is a new company?'] = 'No' 
 
-    # Append new rows (preserve all existing/manual rows). new_rows were already filtered against existing names/domains.
+    # Append new rows and place them at the top so newly added companies appear first in the table.
     if new_rows:
-        appended_df = pd.concat([existing_df, pd.DataFrame(new_rows)], ignore_index=True)
+        appended_df = pd.concat([pd.DataFrame(new_rows), existing_df], ignore_index=True)
     else:
         appended_df = existing_df.copy()
 
     # Ensure columns order includes our important columns first
-    cols = [c for c in ['name', 'Company Website', 'Is a new company?'] if c in appended_df.columns]
+    cols = [c for c in ['name', 'Company Website', 'Tech Hiring Platforms', 'Is a new company?'] if c in appended_df.columns]
     appended_df = appended_df[cols + [c for c in appended_df.columns if c not in cols]]
 
     # Do not drop duplicates across the full dataset to avoid accidentally removing manual entries
@@ -500,8 +509,8 @@ if __name__ == "__main__":
         # --- Generate HTML report (overwritten on each run) ---
         try:
             html_out = 'Companies.html'
-            # Ensure the three columns exist so the table always has the same structure
-            required_cols = ['name', 'Company Website', 'Is a new company?']
+            # Ensure the four columns exist so the table always has the same structure
+            required_cols = ['name', 'Company Website', 'Tech Hiring Platforms', 'Is a new company?']
             for c in required_cols:
                 if c not in appended_df.columns:
                     appended_df[c] = ''
@@ -515,16 +524,25 @@ if __name__ == "__main__":
                     website_html = f'<a href="{website_esc}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">{html.escape(website)}</a>'
                 else:
                     website_html = ''
-                is_new = html.escape(str(row.get('Is a new company?', '') or 'No'))
+                platform = html.escape(str(row.get('Tech Hiring Platforms', '') or ''))
+                is_new = str(row.get('Is a new company?', '') or 'No')
+                # subtle shading for newly added companies (minimal, professional)
+                is_new_flag = is_new.strip().lower() == 'yes'
+                tr_class = 'bg-gray-50 even:bg-gray-100' if is_new_flag else 'bg-white even:bg-gray-50'
+                # bold the 'Yes' text for new companies, keep 'No' plain
+                is_new_html = '<strong>Yes</strong>' if is_new_flag else html.escape('No')
                 rows_html.append(
-                    f'<tr class="bg-white even:bg-gray-50">'
+                    f'<tr class="{tr_class}">'
                     f'<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{name}</td>'
                     f'<td class="px-6 py-4 text-sm text-gray-500">{website_html}</td>'
-                    f'<td class="px-6 py-4 text-sm text-gray-500">{is_new}</td>'
+                    f'<td class="px-6 py-4 text-sm text-gray-500">{platform}</td>'
+                    f'<td class="px-6 py-4 text-sm text-gray-500">{is_new_html}</td>'
                     f'</tr>'
                 )
 
-            now = datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')
+            # Use Costa Rica time (GMT-6). Costa Rica does not observe DST, so a fixed offset is used.
+            tz_cr = timezone(timedelta(hours=-6))
+            now = datetime.now(tz_cr).strftime('%Y-%m-%d %H:%M GMT-6')
             html_content = f'''<!doctype html>
 <html lang="en">
 <head>
@@ -545,6 +563,7 @@ if __name__ == "__main__":
         <tr>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company Website</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tech Hiring Platforms</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Is a new company?</th>
         </tr>
       </thead>
