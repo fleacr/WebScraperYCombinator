@@ -42,6 +42,25 @@ def _extract_domain(url: str) -> str:
         return ""
     
 
+def _ordinal(n: int) -> str:
+    n = int(n)
+    if 10 <= n % 100 <= 20:
+        return 'th'
+    if n % 10 == 1:
+        return 'st'
+    if n % 10 == 2:
+        return 'nd'
+    if n % 10 == 3:
+        return 'rd'
+    return 'th'
+
+
+def _format_date(dt: datetime) -> str:
+    # Format example: "Monday 1st, Jun"
+    day = dt.day
+    suffix = _ordinal(day)
+    return f"{dt.strftime('%A')} {day}{suffix}, {dt.strftime('%b')}"
+
 START_URL = "https://www.ycombinator.com/companies"
 DICE_LOCAL = "Search Companies _ Dice.com.htm"
 DICE_URL = "https://www.dice.com/companies"
@@ -289,12 +308,13 @@ async def scrape():
 
             results.append({
                 "name": name.strip(),
-                "Company Website": company_website_value,
-                "Tech Hiring Platforms": "ycombinator.com"
+                "Company Website": company_website_value
             })
-        # --- Now also try Dice (local file fallback to live site) ---
+        # --- Now also try Dice (enrichment only; Dice is the hiring signal source) ---
         dice_results = []
+        dice_fetch_succeeded = False
         try:
+            dice_fetch_succeeded = True
             # Use a fresh browser instance for Dice to avoid depending on the YC browser state
             # Reuse the same headless decision (respect HEADLESS or CI detection)
             dice_browser = await p.chromium.launch(headless=headless)
@@ -390,27 +410,27 @@ async def scrape():
                 if name:
                     dice_results.append({
                         'name': name.strip(),
-                        'Company Website': website or '',
-                        'Tech Hiring Platforms': 'dice.com'
+                        'Company Website': website or ''
                     })
 
             await dp.close()
             await dice_browser.close()
         except Exception as e:
+            dice_fetch_succeeded = False
             print('Error scraping Dice:', e)
 
-        # combine YC results (from earlier) with dice_results
-        combined = results + dice_results
-
-        # close browser and return combined results
+        # close browser and return YC results plus Dice enrichment info
         await browser.close()
-        return combined
+        return {'yc': results, 'dice': dice_results, 'dice_ok': dice_fetch_succeeded}
 
 
 if __name__ == "__main__":
-    companies = asyncio.run(scrape())
-    print(f"Saving {len(companies)} companies to CSV (name + Company Website)...")
-    df = pd.DataFrame(companies)
+    data = asyncio.run(scrape())
+    yc_companies = data.get('yc', [])
+    dice_companies = data.get('dice', [])
+    dice_ok = data.get('dice_ok', False)
+    print(f"Saving {len(yc_companies)} YC companies to CSV (name + Company Website)...")
+    df = pd.DataFrame(yc_companies)
     if df.empty:
         df = pd.DataFrame(columns=['name', 'Company Website'])
     else:
@@ -419,7 +439,7 @@ if __name__ == "__main__":
             df.rename(columns={'Company': 'name'}, inplace=True)
         if 'Company Website' not in df.columns and 'CompanyWebsite' in df.columns:
             df.rename(columns={'CompanyWebsite': 'Company Website'}, inplace=True)
-        df = df[[c for c in ['name', 'Company Website', 'Tech Hiring Platforms'] if c in df.columns]]
+        df = df[[c for c in ['name', 'Company Website'] if c in df.columns]]
 
     # Load existing CSV (prefer Companies.csv, fallback to yc_companies.csv)
     existing_csv = 'Companies.csv' if Path('Companies.csv').exists() else ('yc_companies.csv' if Path('yc_companies.csv').exists() else None)
@@ -436,22 +456,55 @@ if __name__ == "__main__":
             existing_df.rename(columns={'CompanyWebsite': 'Company Website'}, inplace=True)
         else:
             existing_df['Company Website'] = ''
-    # If an older 'highlight' column exists, rename it to the new 'Is a new company?' column
-    if 'highlight' in existing_df.columns and 'Is a new company?' not in existing_df.columns:
-        existing_df.rename(columns={'highlight': 'Is a new company?'}, inplace=True)
+# If an older 'highlight' column exists, rename it to the new 'Hiring Signal' column
+    if 'highlight' in existing_df.columns and 'Hiring Signal' not in existing_df.columns:
+        existing_df.rename(columns={'highlight': 'Hiring Signal'}, inplace=True)
 
     # Clean up any leftover temporary columns from older runs
     for _tmp in ['__name_norm', '__domain']:
         if _tmp in existing_df.columns:
             existing_df.drop(columns=[_tmp], inplace=True)
 
-    # Ensure existing_df has the 'Tech Hiring Platforms' column
-    if 'Tech Hiring Platforms' not in existing_df.columns:
-        existing_df['Tech Hiring Platforms'] = ''
+    # Ensure existing_df has the 'Date Added' column (preserve existing values if present)
+    if 'Date Added' not in existing_df.columns:
+        existing_df['Date Added'] = ''
 
     # Prepare for duplicate detection (compute sets without adding temporary DataFrame columns)
     existing_names = set(existing_df['name'].astype(str).apply(_normalize_name).tolist())
     existing_domains = set(existing_df['Company Website'].astype(str).apply(_extract_domain).tolist())
+
+    # Ensure existing_df has a 'Hiring Signal' column and preserve existing values
+    if 'Hiring Signal' not in existing_df.columns:
+        existing_df['Hiring Signal'] = ''
+
+    # Current date (Costa Rica GMT-6) for marking newly added companies
+    tz_cr = timezone(timedelta(hours=-6))
+    date_added_str = _format_date(datetime.now(tz_cr))
+
+    # Build Dice lookup sets (if Dice was scraped)
+    dice_name_norms = set(_normalize_name(x.get('name','')) for x in dice_companies)
+    dice_domains = set(_extract_domain(x.get('Company Website','')) for x in dice_companies)
+
+    # Update existing rows' Hiring Signal based on Dice evidence (upgrade to High; do not downgrade High)
+    if dice_ok:
+        for idx, erow in existing_df.iterrows():
+            ename_norm = _normalize_name(str(erow.get('name','')))
+            edomain = _extract_domain(str(erow.get('Company Website','')))
+            prev_signal = str(erow.get('Hiring Signal','')).strip()
+            if (ename_norm and ename_norm in dice_name_norms) or (edomain and edomain in dice_domains):
+                # Strong evidence -> High
+                if prev_signal != 'High':
+                    existing_df.at[idx, 'Hiring Signal'] = 'High'
+            else:
+                # If we scraped Dice successfully and didn't find the company, mark Low for non-High entries
+                if prev_signal != 'High':
+                    existing_df.at[idx, 'Hiring Signal'] = 'Low'
+    else:
+        # Could not fetch Dice data; set missing signals to Unsure (do not overwrite existing High/Low)
+        for idx, erow in existing_df.iterrows():
+            prev_signal = str(erow.get('Hiring Signal','')).strip()
+            if not prev_signal:
+                existing_df.at[idx, 'Hiring Signal'] = 'Unsure'
 
     # Filter new rows: not present by name or domain
     new_rows = []
@@ -460,7 +513,6 @@ if __name__ == "__main__":
     for _, r in df.iterrows():
         name = str(r.get('name', '')).strip()
         site = str(r.get('Company Website', '')).strip()
-        tech_platform = str(r.get('Tech Hiring Platforms', '')).strip()
         name_norm = _normalize_name(name)
         domain = _extract_domain(site)
         if not name and not site:
@@ -477,15 +529,18 @@ if __name__ == "__main__":
             continue
         seen_names.add(name_norm)
         seen_domains.add(domain)
-        new_rows.append({'name': name, 'Company Website': site, 'Is a new company?': 'Yes', 'Tech Hiring Platforms': tech_platform})
+        # Determine hiring signal for new company (run Dice enrichment earlier)
+        if (name_norm and name_norm in dice_name_norms) or (domain and domain in dice_domains):
+            hiring = 'High'
+        else:
+            # Newly listed on YC -> default to Unsure unless Dice shows High
+            hiring = 'Unsure'
+        # Mark newly added companies with Date Added and Hiring Signal
+        new_rows.append({'name': name, 'Company Website': site, 'Date Added': date_added_str, 'Hiring Signal': hiring})
 
-    # Ensure existing_df has the 'Is a new company?' column and reset all previous 'Yes' flags.
-    # Only companies added in the current run will be marked 'Yes'.
-    if 'Is a new company?' not in existing_df.columns:
-        existing_df['Is a new company?'] = 'No'
-    else:
-        # Reset all existing entries to 'No' so only current-run additions get 'Yes'
-        existing_df['Is a new company?'] = 'No' 
+    # Ensure existing_df has the 'Hiring Signal' column (preserve values set above)
+    if 'Hiring Signal' not in existing_df.columns:
+        existing_df['Hiring Signal'] = ''
 
     # Append new rows and place them at the top so newly added companies appear first in the table.
     if new_rows:
@@ -493,13 +548,20 @@ if __name__ == "__main__":
     else:
         appended_df = existing_df.copy()
 
+    # Ensure Hiring Signal is present for any newly added rows (should be set in new_rows) and default blanks to 'Unsure'
+    appended_df['Hiring Signal'] = appended_df['Hiring Signal'].fillna('').astype(str)
+    appended_df.loc[appended_df['Hiring Signal'] == '', 'Hiring Signal'] = 'Unsure'
+
     # Add numbering column where the most recent company has the highest number.
     appended_df = appended_df.reset_index(drop=True)
+    # If a previous 'No.' column exists, drop it first to avoid duplicate insert errors
+    if 'No.' in appended_df.columns:
+        appended_df.drop(columns=['No.'], inplace=True)
     total = len(appended_df)
     # Insert 'No.' column at position 0 with values total, total-1, ..., 1
     appended_df.insert(0, 'No.', list(range(total, 0, -1)))
     # Ensure columns order includes our important columns first (with 'No.' first)
-    cols = [c for c in ['No.', 'name', 'Company Website', 'Tech Hiring Platforms', 'Is a new company?'] if c in appended_df.columns]
+    cols = [c for c in ['No.', 'name', 'Company Website', 'Date Added', 'Hiring Signal'] if c in appended_df.columns]
     appended_df = appended_df[cols + [c for c in appended_df.columns if c not in cols]]
 
     # Do not drop duplicates across the full dataset to avoid accidentally removing manual entries
@@ -510,12 +572,14 @@ if __name__ == "__main__":
     try:
         # Ensure we don't keep any temporary columns that might persist from older runs
         appended_df.drop(columns=['__name_norm', '__domain'], inplace=True, errors='ignore')
+        # Remove deprecated columns that were used historically
+        appended_df.drop(columns=['Tech Hiring Platforms', 'Is a new company?'], inplace=True, errors='ignore')
 
         # --- Generate HTML report (overwritten on each run) ---
         try:
             html_out = 'Companies.html'
             # Ensure the five columns exist so the table always has the same structure (include numbering)
-            required_cols = ['No.', 'name', 'Company Website', 'Tech Hiring Platforms', 'Is a new company?']
+            required_cols = ['No.', 'name', 'Company Website', 'Date Added', 'Hiring Signal']
             for c in required_cols:
                 if c not in appended_df.columns:
                     appended_df[c] = ''
@@ -529,21 +593,19 @@ if __name__ == "__main__":
                     website_html = f'<a href="{website_esc}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">{html.escape(website)}</a>'
                 else:
                     website_html = ''
-                platform = html.escape(str(row.get('Tech Hiring Platforms', '') or ''))
-                is_new = str(row.get('Is a new company?', '') or 'No')
+                date_added = html.escape(str(row.get('Date Added', '') or ''))
+                hiring = html.escape(str(row.get('Hiring Signal', '') or ''))
                 # subtle shading for newly added companies (minimal, professional)
-                is_new_flag = is_new.strip().lower() == 'yes'
+                is_new_flag = date_added == date_added_str
                 tr_class = 'bg-gray-50 even:bg-gray-100' if is_new_flag else 'bg-white even:bg-gray-50'
-                # bold the 'Yes' text for new companies, keep 'No' plain
-                is_new_html = '<strong>Yes</strong>' if is_new_flag else html.escape('No')
                 number = html.escape(str(row.get('No.', '') or ''))
                 rows_html.append(
                     f'<tr class="{tr_class}">'
                     f'<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{number}</td>'
                     f'<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{name}</td>'
                     f'<td class="px-6 py-4 text-sm text-gray-500">{website_html}</td>'
-                    f'<td class="px-6 py-4 text-sm text-gray-500">{platform}</td>'
-                    f'<td class="px-6 py-4 text-sm text-gray-500">{is_new_html}</td>'
+                    f'<td class="px-6 py-4 text-sm text-gray-500">{date_added}</td>'
+                    f'<td class="px-6 py-4 text-sm text-gray-500">{hiring}</td>'
                     f'</tr>'
                 )
 
@@ -571,8 +633,8 @@ if __name__ == "__main__":
           <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">No.</th>
           <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
           <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Company Website</th>
-          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tech Hiring Platforms</th>
-          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Is a new company?</th>
+          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date Added</th>
+          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Hiring Signal</th>
         </tr>
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
@@ -586,6 +648,13 @@ if __name__ == "__main__":
 
             with open(html_out, 'w', encoding='utf-8') as f:
                 f.write(html_content)
+            # Save CSV (semicolon-delimited) to persist data. Prefer existing CSV filename if present.
+            csv_out = existing_csv if existing_csv else 'Companies.csv'
+            try:
+                appended_df.to_csv(csv_out, sep=';', index=False, encoding='utf-8')
+                print(f"Saved CSV to {csv_out}.")
+            except Exception as e:
+                print("Warning: could not write CSV file:", e)
             print(f"Saved HTML report to {html_out}. Added {new_count} new companies.")
         except Exception as e:
             print("Warning: could not write HTML report:", e)
