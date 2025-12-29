@@ -1,4 +1,4 @@
-# Y Combinator Startup Scraper (Python + Playwright)
+# Companies Scraper (Python + Playwright)
 
 A small, modular web scraper that collects startup/company records from Y Combinator and enriches them with hiring signals derived from Dice.com.
 
