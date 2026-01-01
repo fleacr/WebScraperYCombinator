@@ -535,12 +535,18 @@ if __name__ == "__main__":
         else:
             # Newly listed on YC -> default to Unsure unless Dice shows High
             hiring = 'Unsure'
-        # Mark newly added companies with Date Added and Hiring Signal
-        new_rows.append({'name': name, 'Company Website': site, 'Date Added': date_added_str, 'Hiring Signal': hiring})
+        # Mark newly added companies with Date Added, Hiring Signal, and a flag
+        new_rows.append({'name': name, 'Company Website': site, 'Date Added': date_added_str, 'Hiring Signal': hiring, 'Is a new company?': 'Yes'})
 
     # Ensure existing_df has the 'Hiring Signal' column (preserve values set above)
     if 'Hiring Signal' not in existing_df.columns:
         existing_df['Hiring Signal'] = ''
+
+    # Ensure existing rows are explicitly marked as not new (do not overwrite existing values)
+    if 'Is a new company?' not in existing_df.columns:
+        existing_df['Is a new company?'] = 'No'
+    else:
+        existing_df['Is a new company?'] = existing_df['Is a new company?'].fillna('No')
 
     # Append new rows and place them at the top so newly added companies appear first in the table.
     if new_rows:
@@ -548,9 +554,23 @@ if __name__ == "__main__":
     else:
         appended_df = existing_df.copy()
 
-    # Ensure Hiring Signal is present for any newly added rows (should be set in new_rows) and default blanks to 'Unsure'
+    # Final deduplication: prefer existing rows over newly added ones when name or domain collide.
+    appended_df['__name_norm'] = appended_df['name'].astype(str).apply(_normalize_name)
+    appended_df['__domain'] = appended_df['Company Website'].astype(str).apply(_extract_domain)
+    # Use name if present else domain as the dedupe key
+    appended_df['__dup_key'] = appended_df['__name_norm'].where(appended_df['__name_norm'] != '', appended_df['__domain'])
+    # Drop duplicates keeping the last occurrence (existing rows were concatenated last so they are preferred)
+    appended_df = appended_df.drop_duplicates(subset=['__dup_key'], keep='last').reset_index(drop=True)
+
+    # Ensure Hiring Signal is present for any newly added rows and default blanks to 'Unsure'
     appended_df['Hiring Signal'] = appended_df['Hiring Signal'].fillna('').astype(str)
     appended_df.loc[appended_df['Hiring Signal'] == '', 'Hiring Signal'] = 'Unsure'
+
+    # Ensure 'Is a new company?' exists and default blanks to 'No'
+    if 'Is a new company?' not in appended_df.columns:
+        appended_df['Is a new company?'] = 'No'
+    appended_df['Is a new company?'] = appended_df['Is a new company?'].fillna('')
+    appended_df.loc[appended_df['Is a new company?'] == '', 'Is a new company?'] = 'No'
 
     # Add numbering column where the most recent company has the highest number.
     appended_df = appended_df.reset_index(drop=True)
@@ -571,15 +591,14 @@ if __name__ == "__main__":
     new_count = len([r for r in new_rows])
     try:
         # Ensure we don't keep any temporary columns that might persist from older runs
-        appended_df.drop(columns=['__name_norm', '__domain'], inplace=True, errors='ignore')
+        appended_df.drop(columns=['__name_norm', '__domain', '__dup_key'], inplace=True, errors='ignore')
         # Remove deprecated columns that were used historically
-        appended_df.drop(columns=['Tech Hiring Platforms', 'Is a new company?'], inplace=True, errors='ignore')
-
+        appended_df.drop(columns=['Tech Hiring Platforms'], inplace=True, errors='ignore')
         # --- Generate HTML report (overwritten on each run) ---
         try:
             html_out = 'Companies.html'
-            # Ensure the five columns exist so the table always has the same structure (include numbering)
-            required_cols = ['No.', 'name', 'Company Website', 'Date Added', 'Hiring Signal']
+            # Ensure the essential columns exist so the table always has the same structure (include numbering)
+            required_cols = ['No.', 'name', 'Company Website', 'Date Added', 'Hiring Signal', 'Is a new company?']
             for c in required_cols:
                 if c not in appended_df.columns:
                     appended_df[c] = ''
@@ -595,6 +614,7 @@ if __name__ == "__main__":
                     website_html = ''
                 date_added = html.escape(str(row.get('Date Added', '') or ''))
                 hiring = html.escape(str(row.get('Hiring Signal', '') or ''))
+                is_new_field = html.escape(str(row.get('Is a new company?', '') or ''))
                 # subtle shading for newly added companies (minimal, professional)
                 is_new_flag = date_added == date_added_str
                 tr_class = 'bg-gray-50 even:bg-gray-100' if is_new_flag else 'bg-white even:bg-gray-50'
@@ -606,6 +626,7 @@ if __name__ == "__main__":
                     f'<td class="px-6 py-4 text-sm text-gray-500">{website_html}</td>'
                     f'<td class="px-6 py-4 text-sm text-gray-500">{date_added}</td>'
                     f'<td class="px-6 py-4 text-sm text-gray-500">{hiring}</td>'
+                    f'<td class="px-6 py-4 text-sm text-gray-500">{is_new_field}</td>'
                     f'</tr>'
                 )
 
@@ -635,6 +656,7 @@ if __name__ == "__main__":
           <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Company Website</th>
           <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date Added</th>
           <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Hiring Signal</th>
+          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Is a new company?</th>
         </tr>
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
